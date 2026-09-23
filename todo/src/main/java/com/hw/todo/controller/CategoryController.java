@@ -42,6 +42,18 @@ public class CategoryController {
         return categoryService.findCategoryById(id);
     }
     //U -- Update
-
+    @PutMapping("/categories")
+    public Optional<Category> updateCategory(@RequestParam String oldname,@RequestParam String name, @RequestParam String description){
+        System.out.println("Calling updateCategory()==>");
+        return categoryService.updateCategory(oldname,name, description);
+    }
     //D -- Delete
+
+
+    @DeleteMapping("/categories")
+    public String deleteCategory(@RequestParam Long id){
+        System.out.println("Calling deleteCategory(Long id)==>");
+        return categoryService.deleteCategory(id);
+
+    }
 }
