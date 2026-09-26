@@ -28,7 +28,6 @@ public class CategoryController {
 
 
 
-
     //R-- Read
     @GetMapping("/categories")
     public List<Category> getCategories(){
@@ -36,24 +35,24 @@ public class CategoryController {
         return categoryService.getCategories();
 
     }
-    @GetMapping("/categories/id")
-    public Optional<Category> findCategoryById(@PathVariable Long id){
+    @GetMapping("/categories/{categoryId}")
+    public Optional<Category> findCategoryById(@PathVariable(value = "categoryId") Long id){
         System.out.println("Calling findCategoryById(Long id)==>");
         return categoryService.findCategoryById(id);
     }
     //U -- Update
-    @PutMapping("/categories")
-    public Optional<Category> updateCategory(@RequestParam String oldname,@RequestParam String name, @RequestParam String description){
+    @PutMapping("/categories/{categoryId}")
+    public Category updateCategory(@PathVariable(value = "categoryId") Long categoryId, @RequestBody Category categoryObject){
         System.out.println("Calling updateCategory()==>");
-        return categoryService.updateCategory(oldname,name, description);
+        return categoryService.updateCategory(categoryId, categoryObject);
     }
     //D -- Delete
 
 
-    @DeleteMapping("/categories")
-    public String deleteCategory(@RequestParam Long id){
+    @DeleteMapping("/categories/{categoryId}")
+    public String deleteCategory(@PathVariable(value = "categoryId") Long categoryId){
         System.out.println("Calling deleteCategory(Long id)==>");
-        return categoryService.deleteCategory(id);
+        return categoryService.deleteCategory(categoryId);
 
     }
 }
