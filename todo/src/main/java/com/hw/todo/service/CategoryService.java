@@ -4,7 +4,9 @@ import com.hw.todo.exception.InformationExistsException;
 import com.hw.todo.exception.InformationNotFoundException;
 import com.hw.todo.model.Category;
 import com.hw.todo.repository.CategoryRepository;
+import com.hw.todo.security.MyUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,23 +23,40 @@ public class CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
 
+
+
     public Category createCategory(Category categoryObject) {
-        Category existing = categoryRepository.findByName(categoryObject.getName());
-        if (existing != null) {
+        System.out.println("Service Calling createCategory ===>");
+        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        Category category = categoryRepository.findByUserIdAndName(
+                userDetails.getUser().getId(), categoryObject.getName());
+        if (category != null) {
             throw new InformationExistsException("Category with name " + categoryObject.getName() + " already exists.");
+        } else {
+            categoryObject.setUser(userDetails.getUser());
+            return categoryRepository.save(categoryObject);
         }
-        return categoryRepository.save(categoryObject);
     }
 
 
     public List<Category> getCategories() {
-        System.out.println("Service Calling getCategories() ==>");
-        return categoryRepository.findAll();
+        System.out.println("Service Calling getCategories ===>");
+        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        return categoryRepository.findByUserId(userDetails.getUser().getId());
     }
 
-    public Optional<Category> findCategoryById(Long id){
-        System.out.println("Service Calling findCategoryById(Long id)==>");
-        return categoryRepository.findById(id);
+    public Optional<Category> findCategoryById(Long categoryId) {
+        System.out.println("Service Calling findCategoryById ===>");
+        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        Optional<Category> category = categoryRepository.findByIdAndUserId(categoryId, userDetails.getUser().getId());
+        if (category.isPresent()) {
+            return category;
+        } else {
+            throw new InformationNotFoundException("Category with id " + categoryId + " not found");
+        }
     }
 
 

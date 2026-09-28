@@ -1,6 +1,5 @@
 package com.hw.todo.controller;
 
-import com.hw.todo.exception.InformationExistsException;
 import com.hw.todo.model.Category;
 import com.hw.todo.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +49,7 @@ public class CategoryController {
 
 
     @DeleteMapping("/categories/{categoryId}")
-    public String deleteCategory(@PathVariable(value = "categoryId") Long categoryId){
+    public Optional<Category> deleteCategory(@PathVariable(value = "categoryId") Long categoryId){
         System.out.println("Calling deleteCategory(Long id)==>");
         return categoryService.deleteCategory(categoryId);
 

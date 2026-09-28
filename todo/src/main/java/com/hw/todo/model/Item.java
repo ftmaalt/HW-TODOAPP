@@ -29,4 +29,9 @@ public class Item {
     @ManyToOne
     @JoinColumn(name = "category_Id")
     private Category category;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name ="user_id")
+    private User user;
 }

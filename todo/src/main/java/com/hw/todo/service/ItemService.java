@@ -6,7 +6,9 @@ import com.hw.todo.model.Category;
 import com.hw.todo.model.Item;
 import com.hw.todo.repository.CategoryRepository;
 import com.hw.todo.repository.ItemRepository;
+import com.hw.todo.security.MyUserDetails;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,24 +26,47 @@ public class ItemService {
     //Create new category item
     public Item createItem(Long categoryId, Item newItem){
         System.out.println("SERVICE Calling creatItem()==>");
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(()-> new InformationNotFoundException("Category with id: "+ categoryId +" does not exist..."));
-        newItem.setCategory(category);
-        return itemRepository.save(newItem);
+        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        Optional<Category> category = categoryRepository.findByIdAndUserId(categoryId, userDetails.getUser().getId());
+        if (category.isPresent()) {
+            newItem.setCategory(category.get());
+            newItem.setUser(userDetails.getUser());
+            return itemRepository.save(newItem);
+        } else {
+            throw new InformationNotFoundException("Category with id " + categoryId + " not found");
+        }
     }
 
     //Get category items
     public List<Item> itemList(Long categoryId){
         System.out.println("SERVICE Calling itemList()==>");
-        return itemRepository.findByCategoryId(categoryId);
+        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        Optional<Category> category = categoryRepository.findByIdAndUserId(categoryId, userDetails.getUser().getId());
+        if (category.isPresent()) {
+            return itemRepository.findByCategoryId(categoryId);
+        } else {
+            throw new InformationNotFoundException("Category with id " + categoryId + " not found");
+        }
     }
 
     // Get a specific item
     public Item retrieveItem(Long categoryId, Long itemId){
         System.out.println("SERVICE Calling retrieveItem()==>");
-        Category category= categoryRepository.findById(categoryId)
-                .orElseThrow(()-> new InformationNotFoundException("Category with id: "+ categoryId +" does not exist..."));
-        return itemRepository.findById(itemId).filter(item1 -> item1.getCategory().getId().equals(categoryId)).orElseThrow(()-> new InformationNotFoundException("Category with id: "+ categoryId +" does not exist..."));
+        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        Optional<Category> category = categoryRepository.findByIdAndUserId(categoryId, userDetails.getUser().getId());
+        if (category.isPresent()) {
+            Optional<Item> item = itemRepository.findByIdAndUserId(itemId, userDetails.getUser().getId());
+            if (item.isPresent() && item.get().getCategory().getId().equals(categoryId)) {
+                return item.get();
+            } else {
+                throw new InformationNotFoundException("Item with id " + itemId + " not found");
+            }
+        } else {
+            throw new InformationNotFoundException("Category with id " + categoryId + " not found");
+        }
     }
 
     //update an item
