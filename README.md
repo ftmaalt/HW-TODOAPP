@@ -1,32 +1,45 @@
 # HW-TODOAPP
 
 A Spring Boot RESTful API to manage to-do list categories and items.
-## Endpoints
- 
-### 1. Category Endpoints
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/api/categories` | Add a new category |
-| `GET` | `/api/categories` | List all categories |
-| `GET` | `/api/categories/{categoryId}` | Get a single category by ID |
-| `PUT` | `/api/categories/{categoryId}` | Update an existing category by ID |
-| `DELETE` | `/api/categories/{categoryId}` | Delete a category by ID |
+
+## Design Decisions & Reasons
+
+- **Layered Architecture:** Organized into `controller`, `service`, `repository`, `model`, and `security` layers to keep code clean and easy to maintain.
+- **Entity Relationships:**
+  - `User` (1) to `UserProfile` (1): Keeps login credentials separate from user profile details.
+  - `Category` (1) to `Item` (N): Allows users to group multiple todo items under specific categories.
+- **JWT Security:** Used JSON Web Tokens (JWT) for stateless authentication so users log in once, receive a token, and use it to access protected endpoints.
+- **Spring Profiles:** Used `application-dev.properties` to isolate local database settings from production settings.
+  
+## API Endpoints
+
+### Auth Endpoints
+| Method | Endpoint | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/auth/users/register` | Register a new user | Public |
+| `POST` | `/auth/users/login` | Login and get JWT token | Public |
+
+### Category Endpoints
+| Method | Endpoint | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/categories` | List all categories | Private |
+| `POST` | `/api/categories` | Create a category | Private |
+| `GET` | `/api/categories/{categoryId}` | Get category by ID | Private |
+| `PUT` | `/api/categories/{categoryId}` | Update category by ID | Private |
+| `DELETE` | `/api/categories/{categoryId}` | Delete category by ID | Private |
+
+### Item Endpoints
+| Method | Endpoint | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/categories/{categoryId}/items` | List items in category | Private |
+| `POST` | `/api/categories/{categoryId}/items` | Create item in category | Private |
+| `GET` | `/api/categories/{categoryId}/items/{itemId}` | Get single item by ID | Private |
+| `PUT` | `/api/categories/{categoryId}/items/{itemId}` | Update item by ID | Private |
+| `DELETE` | `/api/categories/{categoryId}/items/{itemId}` | Delete item by ID | Private |
 
 ---
 
-### 2. Item Endpoints
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/api/categories/{categoryId}/items` | Add a new item under a specific category |
-| `GET` | `/api/categories/{categoryId}/items` | List all items belonging to a category |
-| `GET` | `/api/categories/{categoryId}/items/{itemId}` | Get a single item by ID within a category |
-| `PUT` | `/api/categories/{categoryId}/items/{itemId}` | Update an item by ID within a category |
-| `DELETE` | `/api/categories/{categoryId}/items/{itemId}` | Delete an item by ID from a category |
-
----
 ## Screenshots
-
-Add your Postman testing screenshots in your repository (e.g., inside an `assets/` or `images/` directory) and link them below:
 
 ### Category Endpoints
 * **Create Category (POST):**
